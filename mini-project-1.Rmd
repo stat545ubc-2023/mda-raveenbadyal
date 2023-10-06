@@ -1,6 +1,9 @@
 ---
 title: "Mini Data-Analysis Deliverable 1"
-output: github_document
+output: 
+  github_document:
+    toc: true
+    toc_depth: 2
 ---
 
 # Welcome to your (maybe) first-ever data analysis project!
@@ -100,6 +103,7 @@ And that is exactly the first thing that you will do!
 - Rows: 569
 - Columns: 32
 - Class type: "spec_tbl_df", "tbl_df","tbl","data.frame"
+- Variables: Sample id, diagnosis of type of tumour, measurements of radius, texture, perimeter, area, etc. of the tumor
 
 ### Explore Cancer Sample Data
 ```{r}
@@ -110,6 +114,7 @@ class(cancer_sample)
 - Rows: 10032
 - Columns: 22
 - Class: "tbl_df", "tbl", "data.frame"
+- Variables: Meter id, location, dollars made in specific time frames, method of payment
 
 ### Explore Parking Meters Data
 ```{r}
@@ -122,6 +127,7 @@ head(parking_meters)
 - Columns: 14
 - Variables: Permit number, issue date of permit, value of project, type of 
 work, address, description of building contractor and their address
+
 ### Explore Building Permits Data
 ```{r}
 head(building_permits)
@@ -186,30 +192,30 @@ Make sure that you're using dplyr and ggplot2 rather than base R for this task. 
 <!-------------------------- Start your work below ---------------------------->
 ### Task 2-1
 #### Plot the distribution of a numeric variable.
-I chose this exercise because I wanted to see how large the spread was for longitude of the collected data. I created a histogram which displays longitude on the x-axis and count of trees on the y-axis. The data for these trees was only collected in Vancouver so there is only a small range for longitude.
+I chose this exercise because I wanted to see how large the spread was for longitude of the collected data. I created a histogram which displays longitude on the x-axis and count of trees on the y-axis. The data for these trees was only collected in Vancouver so there is only a small range for longitude. The code below specifies to create a histogram that counts the number of trees at each longitude. I changed the axis titles with the xlab and ylab functions, and the plot title with ggtitle.
 ```{r}
 ggplot(vancouver_trees, aes(x = longitude)) +
-   geom_histogram(bins = 30) 
+   geom_histogram(bins = 30) + xlab("Longitude") + ylab("Count") + ggtitle("Distribution of Longitude of Vancouver Trees")
 ```
 
 ### Task 2-2
 #### Make a new tibble with a subset of your data, with variables and observations that you are interested in exploring.
-I chose this exercise because my proposed question above mentioned wanting to understand which types of trees grow in which neighborhoods, and if there is a difference in the types of trees that grow in each neighborhood. This subset of data allows you to focus on 6 columns instead of 21, and it contains the relevant information to determine which species grow in which neighborhoods.
+I chose this exercise because my proposed question above mentioned wanting to understand which types of trees grow in which neighborhoods, and if there is a difference in the types of trees that grow in each neighborhood. This subset of data allows you to focus on 5 columns instead of 20, and it contains the relevant information to determine which species grow in which neighborhoods. The code below allows for the selection of the preferred columns for a new and more concise tibble. The select function was used to select the names of the columns to display in the new tibble.
 ```{r}
 select(vancouver_trees, tree_id, neighbourhood_name, genus_name, species_name, common_name)
 ```
 ### Task 2-3
 #### Create a new variable based on other variables in your data.
-One of the questions I came up with was if there is a difference in tree diameter whether or not a tree has curb presence. I made a new column which takes the mean of the trees that have a curb presence and the mean of the trees that don't have a curb presence. The new column is named mean_diameter_curb, as the mean is based on whether there is a curb presence or not.
+One of the questions I came up with was if there is a difference in tree diameter whether or not a tree has curb presence. I made a new column which takes the mean of the trees that have a curb presence and the mean of the trees that don't have a curb presence. The new column is named mean_diameter_curb, as the mean is based on whether there is a curb presence or not. The code below creates a new column named mean_diameter_curb. The group_by function was used to group the data according to the curb status. The mutate function was used to create the new column which takes the mean of diameter for each tree based on its curb status.
 ```{r}
 vancouver_trees %>% group_by(curb) %>% mutate(mean_diameter_curb = mean(diameter))
 ```
 ### Task 2-4
 #### Use a density plot to explore any of your variables (that are suitable for this type of plot).
-I chose this exercise because I wanted to understand the spread of diameter in the vancouver_trees dataset. This density plot shows that most trees have a diameter less than 100. There are trees with a diameter greater than 100 but there is less density of these trees. This will be useful for further analysis because I can filter the data based on diameter and compare other variables to a more focused diameter range.
+I chose this exercise because I wanted to understand the spread of diameter in the vancouver_trees dataset. This density plot shows that most trees have a diameter less than 100. There are trees with a diameter greater than 100 but there are less of these trees. This will be useful for further analysis because I can filter the data based on diameter and compare other variables to a more focused diameter range. The code below creates a density plot using ggplot. The density of diameter was analyzed (x variable), and the ylab, xlab, ggtitle functions allow for the change of axis and plot titles.
 ```{r}
 ggplot(vancouver_trees, aes(x = diameter)) + 
-    geom_density()
+    geom_density() + xlab("Tree Diameter (dbh)") + ylab("Density") + ggtitle("Density of Diameters of Vancouver Trees")
 ```
 <!----------------------------------------------------------------------------->
 
@@ -218,13 +224,20 @@ ggplot(vancouver_trees, aes(x = diameter)) +
 **(4 points)** So far, you have chosen a dataset and gotten familiar with it through exploring the data. You have also brainstormed one research question that interested you (Task 1.4).  Now it's time to pick 4 research questions that you would like to explore in Milestone 2! Write the 4 questions and any additional comments below. 
 
 <!--- *****START HERE***** --->
-1. How does diameter of the tree change if there is or is not a root barrier installed?
+**1. How does diameter of the tree change if there is or is not a root barrier installed?**
+
 - It may be beneficial to compare the average diameter of all trees that have a root barrier installed against the average diameter of all trees that don't have a root barrier installed. I could also use facet wrapping to create distributions of the diameter for each condition of root barrier.
-2. Does the number of trees in each neigborhood differ?
+
+**2. Does the number of trees in each neigborhood differ?**
+
 - This could be done with a bar graph. Depending on the total number of neighborhoods, I may choose neighborhoods that are further from each other to get an estimate of the number of trees around different areas of Vancouver.
-3. Do trees planted in 1995 and 2015 have a large difference in height_range_id?
+
+**3. Do trees planted in 1995 and 2015 have a large difference in height_range_id?**
+
 - I would have to make the dataset tidy to perform this task. I would have to separate year from the rest of the date
-4. What is the distribution of tree diameter in each neighborhood?
+
+**4. What is the distribution of tree diameter in each neighborhood?**
+
 - Facet wrapping can be used, or if I do a density plot, I can make each neighborhoods line/fill a different colour.
 <!----------------------------->
 
