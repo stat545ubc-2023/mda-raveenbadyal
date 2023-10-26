@@ -69,6 +69,7 @@ Begin by loading your data and the tidyverse package below:
 ``` r
 library(datateachr) # <- might contain the data you picked!
 library(tidyverse)
+library(here)
 ```
 
 # Task 1: Process and summarize your data
@@ -158,56 +159,32 @@ will allow me to see if the diameter differs in terms of multiple
 statistics or just one.
 
 ``` r
-vancouver_trees %>% group_by(root_barrier) %>% mutate(mean_diameter = mean(diameter))
+mean_diam_barr<- vancouver_trees %>% group_by(root_barrier) %>% summarise(mean_diameter = mean(diameter))
+mean_diam_barr
 ```
 
-    ## # A tibble: 146,611 × 21
-    ## # Groups:   root_barrier [2]
-    ##    tree_id civic_number std_street    genus_name species_name cultivar_name  
-    ##      <dbl>        <dbl> <chr>         <chr>      <chr>        <chr>          
-    ##  1  149556          494 W 58TH AV     ULMUS      AMERICANA    BRANDON        
-    ##  2  149563          450 W 58TH AV     ZELKOVA    SERRATA      <NA>           
-    ##  3  149579         4994 WINDSOR ST    STYRAX     JAPONICA     <NA>           
-    ##  4  149590          858 E 39TH AV     FRAXINUS   AMERICANA    AUTUMN APPLAUSE
-    ##  5  149604         5032 WINDSOR ST    ACER       CAMPESTRE    <NA>           
-    ##  6  149616          585 W 61ST AV     PYRUS      CALLERYANA   CHANTICLEER    
-    ##  7  149617         4909 SHERBROOKE ST ACER       PLATANOIDES  COLUMNARE      
-    ##  8  149618         4925 SHERBROOKE ST ACER       PLATANOIDES  COLUMNARE      
-    ##  9  149619         4969 SHERBROOKE ST ACER       PLATANOIDES  COLUMNARE      
-    ## 10  149625          720 E 39TH AV     FRAXINUS   AMERICANA    AUTUMN APPLAUSE
-    ## # ℹ 146,601 more rows
-    ## # ℹ 15 more variables: common_name <chr>, assigned <chr>, root_barrier <chr>,
-    ## #   plant_area <chr>, on_street_block <dbl>, on_street <chr>,
-    ## #   neighbourhood_name <chr>, street_side_name <chr>, height_range_id <dbl>,
-    ## #   diameter <dbl>, curb <chr>, date_planted <date>, longitude <dbl>,
-    ## #   latitude <dbl>, mean_diameter <dbl>
+    ## # A tibble: 2 × 2
+    ##   root_barrier mean_diameter
+    ##   <chr>                <dbl>
+    ## 1 N                    12.0 
+    ## 2 Y                     4.40
 
 ``` r
-vancouver_trees %>% group_by(root_barrier) %>% summarise(range_diameter = range(diameter))
+range_diam_barr<- vancouver_trees %>% group_by(root_barrier) %>% reframe(range_diameter = range(diameter), .groups = 'drop')
+range_diam_barr
 ```
 
-    ## Warning: Returning more (or less) than 1 row per `summarise()` group was deprecated in
-    ## dplyr 1.1.0.
-    ## ℹ Please use `reframe()` instead.
-    ## ℹ When switching from `summarise()` to `reframe()`, remember that `reframe()`
-    ##   always returns an ungrouped data frame and adjust accordingly.
-    ## Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
-    ## generated.
-
-    ## `summarise()` has grouped output by 'root_barrier'. You can override using the
-    ## `.groups` argument.
-
-    ## # A tibble: 4 × 2
-    ## # Groups:   root_barrier [2]
-    ##   root_barrier range_diameter
-    ##   <chr>                 <dbl>
-    ## 1 N                       0  
-    ## 2 N                     435  
-    ## 3 Y                       0.5
-    ## 4 Y                      86
+    ## # A tibble: 4 × 3
+    ##   root_barrier range_diameter .groups
+    ##   <chr>                 <dbl> <chr>  
+    ## 1 N                       0   drop   
+    ## 2 N                     435   drop   
+    ## 3 Y                       0.5 drop   
+    ## 4 Y                      86   drop
 
 ``` r
-vancouver_trees %>% group_by(root_barrier) %>% summarise(med_diameter = median(diameter))
+med_diam_barr<- vancouver_trees %>% group_by(root_barrier) %>% summarise(med_diameter = median(diameter))
+med_diam_barr
 ```
 
     ## # A tibble: 2 × 2
@@ -217,7 +194,8 @@ vancouver_trees %>% group_by(root_barrier) %>% summarise(med_diameter = median(d
     ## 2 Y                       3
 
 ``` r
-vancouver_trees %>% group_by(root_barrier) %>% summarise(max_diameter = max(diameter))
+max_diam_barr<- vancouver_trees %>% group_by(root_barrier) %>% summarise(max_diameter = max(diameter))
+max_diam_barr
 ```
 
     ## # A tibble: 2 × 2
@@ -227,7 +205,8 @@ vancouver_trees %>% group_by(root_barrier) %>% summarise(max_diameter = max(diam
     ## 2 Y                      86
 
 ``` r
-vancouver_trees %>% group_by(root_barrier) %>% summarise(min_diameter = min(diameter))
+min_diam_barr<- vancouver_trees %>% group_by(root_barrier) %>% summarise(min_diameter = min(diameter))
+min_diam_barr
 ```
 
     ## # A tibble: 2 × 2
@@ -241,19 +220,19 @@ diameter when comparing whether a tree has a root barrier or not. The
 bar graph also includes labels on each bar, which denote the diameter.
 
 ``` r
-mean_diam_tbl <- vancouver_trees %>% group_by(root_barrier) %>% summarise(mean_diameter = mean(diameter))
-
-ggplot(mean_diam_tbl, aes(root_barrier, mean_diameter)) + geom_col() + geom_text(aes(label = mean_diameter)) + xlab("Presence of Root Barrier") + ylab("Mean Diameter") + ggtitle("Mean Diameter Based on Presence of Root Barrier")
+ggplot(mean_diam_barr, aes(root_barrier, mean_diameter)) + geom_col() + geom_text(aes(label = mean_diameter)) + xlab("Presence of Root Barrier") + ylab("Mean Diameter") + ggtitle("Mean Diameter Based on Presence of Root Barrier")
 ```
 
 ![](mini-project-2_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
+
 **Question 2: Does the number of trees in each neigborhood differ?**
 
 Summarizing Task 2: I chose this task because it would allow me to see
 how many trees have been planted in each neighborhood.
 
 ``` r
-vancouver_trees %>% group_by(neighbourhood_name) %>% summarise(n = n())
+trees_by_neigh <- vancouver_trees %>% group_by(neighbourhood_name) %>% summarise(n = n())
+trees_by_neigh
 ```
 
     ## # A tibble: 22 × 2
@@ -277,12 +256,11 @@ the bar is helpful to see the true value when two neighborhoods are
 similar in number.
 
 ``` r
-num_trees_neighbourhood <- vancouver_trees %>% group_by(neighbourhood_name) %>% summarise(n = n())
-
-ggplot(num_trees_neighbourhood, aes(neighbourhood_name, n)) + geom_col() + geom_text(aes(label = n)) + xlab("Neighbourhood") + ylab("Number of Trees") + ggtitle("Number of Trees in Vancouver Neighbourhoods") + theme(axis.text.x = element_text(angle = 90)) 
+ggplot(trees_by_neigh, aes(neighbourhood_name, n)) + geom_col() + geom_text(aes(label = n)) + xlab("Neighbourhood") + ylab("Number of Trees") + ggtitle("Number of Trees in Vancouver Neighbourhoods") + theme(axis.text.x = element_text(angle = 90)) 
 ```
 
 ![](mini-project-2_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+
 **Question 3: How many small, medium, and large trees are there in each
 neighborhood?**
 
@@ -341,6 +319,7 @@ ggplot(vancouver_trees3, aes(diameter, after_stat(density) )) +
     ## Removed 8 rows containing missing values (`geom_bar()`).
 
 ![](mini-project-2_files/figure-gfm/unnamed-chunk-7-3.png)<!-- -->
+
 **Question 4: How many trees of the Alba species were planted every
 year?**
 
@@ -401,6 +380,26 @@ refined, now that you’ve investigated your data a bit more? Which
 research questions are yielding interesting results?
 
 <!------------------------- Write your answer here ---------------------------->
+
+I am much closer to answering my research questions. I changed some of
+my questions to try to complete the tasks from the lists before I
+realized I could have kept my questions the same, but gone about the
+tasks differently. So I did refine the questions that I had based on the
+tasks. If I didn’t change the questions before, I probably would have
+refined the questions at this point. I think seeing the trend per year
+for how many Alba trees were grown was interesting. I think seeing how
+many trees are planted per year in general will be more interesting.
+Also, it was specifed to use dplyr and ggplot for Task 1, so I hope to
+use the tidyverse data to clean up the data. One thing I can do is
+separate the date_planted column into day month and year, to get a more
+accurate version of the number of trees planted per year. Also, it was
+interesting to see that having a root barrier may be causing a smaller
+diameter of the tree on average. For this question, I don’t think I
+would want to refine it. Using density plots are a bit harder for this
+dataset as there are quite variable values entered for some columns.
+Possibly filtering the data further will allow for more informative
+visuals.
+
 <!----------------------------------------------------------------------------->
 
 # Task 2: Tidy your data
@@ -421,6 +420,41 @@ untidy? Go through all your columns, or if you have \>8 variables, just
 pick 8, and explain whether the data is untidy or tidy.
 
 <!--------------------------- Start your work below --------------------------->
+
+1.  date_planted: This isn’t as tidy as can be for my needs because it
+    is hard to use year as a variable.
+
+2.  species_name: I would say this is tidy because it is separate from
+    the genus_name column, and it would allow the user to filter for a
+    specific species or genus if needed.
+
+3.  tree_id: This seems tidy as each observation is given a tree id,
+    which makes each row an observation.
+
+4.  root_barrier: This is tidy because it is a yes or no column
+    containing a single variable.
+
+5.  std_street: This entry could be split into three columns to divide
+    the cardinal direction, street name, and the type of street it is,
+    whether its a Avenue, Street, or Road etc.
+
+6.  neighbourhood_name: This seems tidy because there is consistency
+    between how each neighbourhood is specified as each neighbourhood
+    has its own string.
+
+7.  curb: Thisseems tidy enough because there is a Yes or No only for
+    this variable/column.
+
+8.  cultivar_name: This may not be tidy because the common_name also
+    includes this data. The data in common_name can probably be split to
+    avoid the double presence of the cultivar_name.
+
+Overall, the dataset is tidy, but it is untidy in some cases depending
+on the research question. Depending on the user’s needs, they can make
+the data more tidy if needed. Each row is an observation as there is a
+tree id for each entry. Each column is a variable, and each cell has
+value unless it is specified as NA where there is no record of that
+variable for that observation.
 <!----------------------------------------------------------------------------->
 
 ### 2.2 (4 points)
@@ -435,6 +469,65 @@ Be sure to explain your reasoning for this task. Show us the “before”
 and “after”.
 
 <!--------------------------- Start your work below --------------------------->
+
+I want to make the data more tidy by separating the date_planted column
+into day_planted, month_planted, and year_planted. This will be useful
+for me because I would like to see how the number of trees planted per
+year changes, and this was doable but not as straightforward as when the
+columns for the date are separated out and year is more accessible.
+
+``` r
+vancouver_trees_datesep <- vancouver_trees %>% separate(col = date_planted, into = c('year_planted', 'month_planted', 'day_planted'))
+vancouver_trees_datesep
+```
+
+    ## # A tibble: 146,611 × 22
+    ##    tree_id civic_number std_street    genus_name species_name cultivar_name  
+    ##      <dbl>        <dbl> <chr>         <chr>      <chr>        <chr>          
+    ##  1  149556          494 W 58TH AV     ULMUS      AMERICANA    BRANDON        
+    ##  2  149563          450 W 58TH AV     ZELKOVA    SERRATA      <NA>           
+    ##  3  149579         4994 WINDSOR ST    STYRAX     JAPONICA     <NA>           
+    ##  4  149590          858 E 39TH AV     FRAXINUS   AMERICANA    AUTUMN APPLAUSE
+    ##  5  149604         5032 WINDSOR ST    ACER       CAMPESTRE    <NA>           
+    ##  6  149616          585 W 61ST AV     PYRUS      CALLERYANA   CHANTICLEER    
+    ##  7  149617         4909 SHERBROOKE ST ACER       PLATANOIDES  COLUMNARE      
+    ##  8  149618         4925 SHERBROOKE ST ACER       PLATANOIDES  COLUMNARE      
+    ##  9  149619         4969 SHERBROOKE ST ACER       PLATANOIDES  COLUMNARE      
+    ## 10  149625          720 E 39TH AV     FRAXINUS   AMERICANA    AUTUMN APPLAUSE
+    ## # ℹ 146,601 more rows
+    ## # ℹ 16 more variables: common_name <chr>, assigned <chr>, root_barrier <chr>,
+    ## #   plant_area <chr>, on_street_block <dbl>, on_street <chr>,
+    ## #   neighbourhood_name <chr>, street_side_name <chr>, height_range_id <dbl>,
+    ## #   diameter <dbl>, curb <chr>, year_planted <chr>, month_planted <chr>,
+    ## #   day_planted <chr>, longitude <dbl>, latitude <dbl>
+
+Now, I can put the componenets of the date back together.
+
+``` r
+vancouver_trees_datetog <- vancouver_trees_datesep %>% unite(col = date_planted, c(year_planted, month_planted, day_planted), sep = "-")
+vancouver_trees_datetog
+```
+
+    ## # A tibble: 146,611 × 20
+    ##    tree_id civic_number std_street    genus_name species_name cultivar_name  
+    ##      <dbl>        <dbl> <chr>         <chr>      <chr>        <chr>          
+    ##  1  149556          494 W 58TH AV     ULMUS      AMERICANA    BRANDON        
+    ##  2  149563          450 W 58TH AV     ZELKOVA    SERRATA      <NA>           
+    ##  3  149579         4994 WINDSOR ST    STYRAX     JAPONICA     <NA>           
+    ##  4  149590          858 E 39TH AV     FRAXINUS   AMERICANA    AUTUMN APPLAUSE
+    ##  5  149604         5032 WINDSOR ST    ACER       CAMPESTRE    <NA>           
+    ##  6  149616          585 W 61ST AV     PYRUS      CALLERYANA   CHANTICLEER    
+    ##  7  149617         4909 SHERBROOKE ST ACER       PLATANOIDES  COLUMNARE      
+    ##  8  149618         4925 SHERBROOKE ST ACER       PLATANOIDES  COLUMNARE      
+    ##  9  149619         4969 SHERBROOKE ST ACER       PLATANOIDES  COLUMNARE      
+    ## 10  149625          720 E 39TH AV     FRAXINUS   AMERICANA    AUTUMN APPLAUSE
+    ## # ℹ 146,601 more rows
+    ## # ℹ 14 more variables: common_name <chr>, assigned <chr>, root_barrier <chr>,
+    ## #   plant_area <chr>, on_street_block <dbl>, on_street <chr>,
+    ## #   neighbourhood_name <chr>, street_side_name <chr>, height_range_id <dbl>,
+    ## #   diameter <dbl>, curb <chr>, date_planted <chr>, longitude <dbl>,
+    ## #   latitude <dbl>
+
 <!----------------------------------------------------------------------------->
 
 ### 2.3 (4 points)
@@ -446,15 +539,27 @@ analysis in the remaining tasks:
 
 <!-------------------------- Start your work below ---------------------------->
 
-1.  *FILL_THIS_IN*
-2.  *FILL_THIS_IN*
+1.  How has the number of trees planted changed per year per
+    neighbourhood over the years that this data has been collected?
+2.  How many different genuses of trees are there in each neighbourhood?
 
 <!----------------------------------------------------------------------------->
 
 Explain your decision for choosing the above two research questions.
 
 <!--------------------------- Start your work below --------------------------->
-<!----------------------------------------------------------------------------->
+
+1.  For this question, it stems from my curiosity of trends in tree
+    planting and its benefit for climate change. Also, I think it would
+    be interesting to see if there are more trees planted in different
+    neighbourhoods or if each neighbourhood plants the same amount of
+    trees. If one neighbourhood already has a lot of trees, this visual
+    will show that that neighbourhood already has enough trees planted.
+2.  I picked this question because I am curious to see how the diversity
+    of trees in each neighbourhood may vary.For my inital question, I
+    graphed how many trees were in each neighbourhood, but determining
+    the diversity is more indicative of diversity of environments.
+    <!----------------------------------------------------------------------------->
 
 Now, try to choose a version of your data that you think will be
 appropriate to answer these 2 questions. Use between 4 and 8 functions
@@ -466,6 +571,57 @@ data, one for each research question.)
 
 <!--------------------------- Start your work below --------------------------->
 
+Data Set for Question 1
+
+``` r
+vancouver_trees_q1 <- vancouver_trees %>% separate(col = date_planted, into = c('year_planted', 'month_planted', 'day_planted')) %>% group_by(neighbourhood_name, year_planted) %>% summarise(n = n())
+```
+
+    ## `summarise()` has grouped output by 'neighbourhood_name'. You can override
+    ## using the `.groups` argument.
+
+``` r
+vancouver_trees_q1
+```
+
+    ## # A tibble: 693 × 3
+    ## # Groups:   neighbourhood_name [22]
+    ##    neighbourhood_name year_planted     n
+    ##    <chr>              <chr>        <int>
+    ##  1 ARBUTUS-RIDGE      1989            41
+    ##  2 ARBUTUS-RIDGE      1990            76
+    ##  3 ARBUTUS-RIDGE      1991            16
+    ##  4 ARBUTUS-RIDGE      1992            81
+    ##  5 ARBUTUS-RIDGE      1993            18
+    ##  6 ARBUTUS-RIDGE      1994            58
+    ##  7 ARBUTUS-RIDGE      1995           151
+    ##  8 ARBUTUS-RIDGE      1996            95
+    ##  9 ARBUTUS-RIDGE      1997            61
+    ## 10 ARBUTUS-RIDGE      1998            59
+    ## # ℹ 683 more rows
+
+Data Set for Question 2
+
+``` r
+vancouver_trees_q2 <- vancouver_trees %>% group_by(neighbourhood_name) %>% summarise(distinct_genus = n_distinct(genus_name))
+vancouver_trees_q2
+```
+
+    ## # A tibble: 22 × 2
+    ##    neighbourhood_name       distinct_genus
+    ##    <chr>                             <int>
+    ##  1 ARBUTUS-RIDGE                        52
+    ##  2 DOWNTOWN                             38
+    ##  3 DUNBAR-SOUTHLANDS                    68
+    ##  4 FAIRVIEW                             55
+    ##  5 GRANDVIEW-WOODLAND                   59
+    ##  6 HASTINGS-SUNRISE                     71
+    ##  7 KENSINGTON-CEDAR COTTAGE             64
+    ##  8 KERRISDALE                           58
+    ##  9 KILLARNEY                            55
+    ## 10 KITSILANO                            73
+    ## # ℹ 12 more rows
+
 # Task 3: Modelling
 
 ## 3.0 (no points)
@@ -476,9 +632,10 @@ these.
 
 <!-------------------------- Start your work below ---------------------------->
 
-**Research Question**: FILL_THIS_IN
+**Research Question**: How does diameter of the tree change if there is
+or is not a root barrier installed?
 
-**Variable of interest**: FILL_THIS_IN
+**Variable of interest**: diameter
 
 <!----------------------------------------------------------------------------->
 
@@ -503,6 +660,20 @@ specifics in STAT 545.
     coefficients.
 
 <!-------------------------- Start your work below ---------------------------->
+
+``` r
+model_diam <- lm(diameter ~ root_barrier, vancouver_trees)
+print(model_diam)
+```
+
+    ## 
+    ## Call:
+    ## lm(formula = diameter ~ root_barrier, data = vancouver_trees)
+    ## 
+    ## Coefficients:
+    ##   (Intercept)  root_barrierY  
+    ##        11.962         -7.562
+
 <!----------------------------------------------------------------------------->
 
 ## 3.2 (3 points)
@@ -520,6 +691,23 @@ Y, or a single value like a regression coefficient or a p-value.
   which broom function is not compatible.
 
 <!-------------------------- Start your work below ---------------------------->
+
+After using the linear regression model for my two variables, I wanted
+to know if there was a p-value associated with the model fitting. I’m
+not exactly sure how this model worked with the inputted data, so I’m
+not sure why the p-value is 0.
+
+``` r
+fitted_diam <- broom::tidy(model_diam)
+print(fitted_diam)
+```
+
+    ## # A tibble: 2 × 5
+    ##   term          estimate std.error statistic p.value
+    ##   <chr>            <dbl>     <dbl>     <dbl>   <dbl>
+    ## 1 (Intercept)      12.0     0.0243     491.        0
+    ## 2 root_barrierY    -7.56    0.0974     -77.6       0
+
 <!----------------------------------------------------------------------------->
 
 # Task 4: Reading and writing data
@@ -541,6 +729,11 @@ file in your `output` folder. Use the `here::here()` function.
   file, and remake it simply by knitting this Rmd file.
 
 <!-------------------------- Start your work below ---------------------------->
+
+``` r
+write_csv(trees_by_neigh, file = here::here("Output", "mda_task4.3.csv"))
+```
+
 <!----------------------------------------------------------------------------->
 
 ## 4.2 (3 points)
@@ -552,6 +745,19 @@ Use the functions `saveRDS()` and `readRDS()`.
 - The same robustness and reproducibility criteria as in 4.1 apply here.
 
 <!-------------------------- Start your work below ---------------------------->
+
+``` r
+saveRDS(fitted_diam, file = here::here("Output", "fitted_diam.rds"))
+fitted_diam2 <- readRDS("fitted_diam.rds")
+fitted_diam2
+```
+
+    ## # A tibble: 2 × 5
+    ##   term          estimate std.error statistic p.value
+    ##   <chr>            <dbl>     <dbl>     <dbl>   <dbl>
+    ## 1 (Intercept)      12.0     0.0243     491.        0
+    ## 2 root_barrierY    -7.56    0.0974     -77.6       0
+
 <!----------------------------------------------------------------------------->
 
 # Overall Reproducibility/Cleanliness/Coherence Checklist

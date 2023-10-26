@@ -45,6 +45,7 @@ Begin by loading your data and the tidyverse package below:
 ```{r, message = FALSE}
 library(datateachr) # <- might contain the data you picked!
 library(tidyverse)
+library(here)
 ```
 
 # Task 1: Process and summarize your data 
@@ -199,14 +200,21 @@ A reminder of the definition of *tidy* data:
 Based on the definition above, can you identify if your data is tidy or untidy? Go through all your columns, or if you have \>8 variables, just pick 8, and explain whether the data is untidy or tidy.
 
 <!--------------------------- Start your work below --------------------------->
-date_planted: This isn't as tidy as can be for my needs because it is hard to use year as a variable.
-species_name: I would say this is tidy because it is separate from the genus_name column, and it would allow the user to filter for a specific species or genus if needed.
-tree_id: This seems tidy as each observation is given a tree id, which makes each row an observation.
-root_barrier: This is tidy because it is a yes or no column containing a single variable.
-std_street: This entry could be split into three columns to divide the cardinal direction, street name, and the type of street it is, whether its a Avenue, Street, or Road etc.
-neighbourhood_name: This seems tidy because there is consistency between how each neighbourhood is specified as each neighbourhood has its own string.
-curb: This seems tidy enough because there is a Yes or No only for this variable/column.
-cultivar_name: This may not be tidy because the common_name also includes this data. The data in common_name can probably be split to avoid the double presence of the cultivar_name.
+1. date_planted: This isn't as tidy as can be for my needs because it is hard to use year as a variable.
+
+2. species_name: I would say this is tidy because it is separate from the genus_name column, and it would allow the user to filter for a specific species or genus if needed.
+
+3. tree_id: This seems tidy as each observation is given a tree id, which makes each row an observation.
+
+4. root_barrier: This is tidy because it is a yes or no column containing a single variable.
+
+5. std_street: This entry could be split into three columns to divide the cardinal direction, street name, and the type of street it is, whether its a Avenue, Street, or Road etc.
+
+6. neighbourhood_name: This seems tidy because there is consistency between how each neighbourhood is specified as each neighbourhood has its own string.
+
+7. curb: Thisseems tidy enough because there is a Yes or No only for this variable/column.
+
+8. cultivar_name: This may not be tidy because the common_name also includes this data. The data in common_name can probably be split to avoid the double presence of the cultivar_name.
 
 Overall, the dataset is tidy, but it is untidy in some cases depending on the research question. Depending on the user's needs, they can make the data more tidy if needed. Each row is an observation as there is a tree id for each entry. Each column is a variable, and each cell has value unless it is specified as NA where there is no record of that variable for that observation.
 <!----------------------------------------------------------------------------->
@@ -330,10 +338,7 @@ Take a summary table that you made from Task 1, and write it as a csv file in yo
 
 <!-------------------------- Start your work below ---------------------------->
 ```{r}
-path_output <- here("Users/raveenbadyal/MDA Raveen Badyal/Output")
-task4.3_output_file <- write_csv(trees_by_neigh, "mda_task4.3.csv")
-here::here(path_output, task4.3_output_file)
-
+write_csv(trees_by_neigh, file = here::here("Output", "mda_task4.3.csv"))
 ```
 <!----------------------------------------------------------------------------->
 
@@ -345,10 +350,9 @@ Write your model object from Task 3 to an R binary file (an RDS), and load it ag
 
 <!-------------------------- Start your work below ---------------------------->
 ```{r}
-path_output <- here("Users/raveenbadyal/MDA Raveen Badyal/Output")
-task4.3_output_file <- write_csv(trees_by_neigh, "mda_task4.3.csv")
-here::here(path_output, task4.3_output_file)
-
+saveRDS(fitted_diam, file = here::here("Output", "fitted_diam.rds"))
+fitted_diam2 <- readRDS("fitted_diam.rds")
+fitted_diam2
 ```
 <!----------------------------------------------------------------------------->
 
