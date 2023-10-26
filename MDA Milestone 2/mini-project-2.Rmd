@@ -1,6 +1,6 @@
 ---
 title: "Mini Data Analysis Milestone 2"
-output: html_document
+output: github_document
 ---
 
 *To complete this milestone, you can either edit [this `.rmd` file](https://raw.githubusercontent.com/UBC-STAT/stat545.stat.ubc.ca/master/content/mini-project/mini-project-2.Rmd) directly. Fill in the sections that are commented out with `<!--- start your work here--->`. When you are done, make sure to knit to an `.md` file by changing the output in the YAML header to `github_document`, before submitting a tagged release on canvas.*
@@ -56,10 +56,10 @@ From milestone 1, you should have an idea of the basic structure of your dataset
 First, write out the 4 research questions you defined in milestone 1 were. This will guide your work through milestone 2:
 
 <!-------------------------- Start your work below ---------------------------->
-1. *FILL_THIS_IN*
-2. *FILL_THIS_IN*
-3. *FILL_THIS_IN*
-4. *FILL_THIS_IN*
+1. *How does diameter of the tree change if there is or is not a root barrier installed?*
+2. *Does the number of trees in each neigborhood differ?*
+3. *Do trees planted in 1995 and 2015 have a large difference in height_range_id?*
+4. *What is the distribution of tree diameter in each neighborhood?*
 <!----------------------------------------------------------------------------->
 
 Here, we will investigate your data using various data manipulation and graphing functions.
@@ -92,7 +92,85 @@ Using variables and/or tables you made in one of the "Summarizing" tasks:
 Make sure it's clear what research question you are doing each operation for!
 
 <!------------------------- Start your work below ----------------------------->
+### Task 1.2
 
+**Question 1: How does diameter of the tree change if there is or is not a root barrier installed?**
+
+Summarizing Task 1: This task helps determine different measure of diameter based on whether or not
+there is a root barrier installed. This will allow me to see if the diameter differs in terms of multiple statistics or just one.
+```{r}
+vancouver_trees %>% group_by(root_barrier) %>% mutate(mean_diameter = mean(diameter))
+vancouver_trees %>% group_by(root_barrier) %>% summarise(range_diameter = range(diameter))
+vancouver_trees %>% group_by(root_barrier) %>% summarise(med_diameter = median(diameter))
+vancouver_trees %>% group_by(root_barrier) %>% summarise(max_diameter = max(diameter))
+vancouver_trees %>% group_by(root_barrier) %>% summarise(min_diameter = min(diameter))
+```
+
+Graphing Task 2: I created a bar graph to show the difference in mean diameter when comparing whether a tree has a root barrier or not. The bar graph also includes labels on each bar, which denote the diameter.
+```{r}
+mean_diam_tbl <- vancouver_trees %>% group_by(root_barrier) %>% summarise(mean_diameter = mean(diameter))
+
+ggplot(mean_diam_tbl, aes(root_barrier, mean_diameter)) + geom_col() + geom_text(aes(label = mean_diameter)) + xlab("Presence of Root Barrier") + ylab("Mean Diameter") + ggtitle("Mean Diameter Based on Presence of Root Barrier")
+```
+
+
+**Question 2: Does the number of trees in each neigborhood differ?**
+
+Summarizing Task 2: I chose this task because it would allow me to see how many trees have been planted in each neighborhood.
+```{r}
+vancouver_trees %>% group_by(neighbourhood_name) %>% summarise(n = n())
+```
+
+Graphing Task 2: I chose this task because it will easily allow me to see how many trees are in each neighbourhood in Vancouver. The text at the bar is helpful to see the true value when two neighborhoods are similar in number.
+```{r}
+num_trees_neighbourhood <- vancouver_trees %>% group_by(neighbourhood_name) %>% summarise(n = n())
+
+ggplot(num_trees_neighbourhood, aes(neighbourhood_name, n)) + geom_col() + geom_text(aes(label = n)) + xlab("Neighbourhood") + ylab("Number of Trees") + ggtitle("Number of Trees in Vancouver Neighbourhoods") + theme(axis.text.x = element_text(angle = 90)) 
+
+```
+
+
+**Question 3: How many small, medium, and large trees are there in each neighborhood?**
+
+(I changed this question from Milestone 1, the question from Milestone 1 is specified in the task above. I changed this question because I wanted to do Task 3 with my dataset but I wouldn't be able to do it with the original question.)
+
+Summarizing Task 3: I chose this task to see what the distribution of tree size is within a neighbourhood and if certain neighborhoods have smaller or larger trees based on diameter.
+```{r}
+vancouver_trees3 <- vancouver_trees %>% filter(na.rm = TRUE) %>% group_by(neighbourhood_name) %>% mutate(diameter_cat = cut(diameter,
+breaks = c(0, 14, 19, 20), labels = c("small", "medium", "large"), include.lowest = TRUE)) 
+```
+
+Graphing Task 3: I chose this task because I wanted to see which category has the most trees, and the spread of diameter in each category. I did a google search to see what typical small, medium, and large trees are sized at. I like this way of looking at the data because I am able to see the tree in the data set that weren't considered small, medium, or large.
+
+I think the best histogram is the one with 100 bins because it is more clear if there is a range of diameters within the categories small, medium and large.
+
+```{r}
+ggplot(vancouver_trees3, aes(diameter, after_stat(density) )) +
+   geom_histogram(bins = 30) + facet_wrap(('diameter_cat')) + scale_x_continuous(name="Diameter", limits=c(0, 30)) 
+
+ggplot(vancouver_trees3, aes(diameter, after_stat(density) )) +
+   geom_histogram(bins = 5) + facet_wrap(('diameter_cat')) + scale_x_continuous(name="Diameter", limits=c(0, 30))
+
+ggplot(vancouver_trees3, aes(diameter, after_stat(density) )) +
+   geom_histogram(bins = 100) + facet_wrap(('diameter_cat')) + scale_x_continuous(name="Diameter", limits=c(0, 30))
+```
+
+
+**Question 4: How many trees of the Alba species were planted every year?**
+
+(I changed this question from Milestone 1, the question from Milestone 1 is specified in the task above. I changed this question because I wanted to make a graph using a geom_path and this option made the most choice, to see how a certain species may be planted over the years and if there is a visible trend.)
+
+Summarizing Task 4: I chose this task to first count the number of trees in each species which would have to be done in order to further figure out and plot how many trees were planted per year.
+```{r}
+vancouver_trees %>% group_by(species_name) %>% summarise(n = n())
+```
+
+Graphing Task 4: I chose this task because I wanted to see how the trend in how many trees are planted per year changes. I think it may have been interesting to see how many trees were planted in general per year and to see if that number has grown to counteract the effects of climate change.
+```{r}
+alba_per_yr <- vancouver_trees %>% filter(species_name == "ALBA") %>% group_by(date_planted) %>% summarise(n = n())
+
+ggplot(alba_per_yr, aes(date_planted, n )) + scale_x_continuous(name="Year") + scale_y_continuous(name="Number of Trees Planted", limits = c(0,3)) + geom_point() + geom_path()
+```
 <!----------------------------------------------------------------------------->
 
 ### 1.3 (2 points)
@@ -101,6 +179,7 @@ Based on the operations that you've completed, how much closer are you to answer
 
 <!------------------------- Write your answer here ---------------------------->
 
+I am much closer to answering my research questions. I changed some of my questions to try to complete the tasks from the lists before I realized I could have kept my questions the same, but gone about the tasks differently. So I did refine the questions that I had based on the tasks. If I didn't change the questions before, I probably would have refined the questions at this point. I think seeing the trend per year for how many Alba trees were grown was interesting. I think seeing how many trees are planted per year in general will be more interesting. Also, it was specifed to use dplyr and ggplot for Task 1, so I hope to use the tidyverse data to clean up the data. One thing I can do is separate the date_planted column into day month and year, to get a more accurate version of the number of trees planted per year. Also, it was interesting to see that having a root barrier may be causing a smaller diameter of the tree on average. For this question, I don't think I would want to refine it. Using density plots are a bit harder for this dataset as there are quite variable values entered for some columns. Possibly filtering the data further will allow for more informative visuals.
 
 <!----------------------------------------------------------------------------->
 
@@ -119,7 +198,16 @@ A reminder of the definition of *tidy* data:
 Based on the definition above, can you identify if your data is tidy or untidy? Go through all your columns, or if you have \>8 variables, just pick 8, and explain whether the data is untidy or tidy.
 
 <!--------------------------- Start your work below --------------------------->
+date_planted: This isn't as tidy as can be for my needs because it is hard to use year as a variable.
+species_name: I would say this is tidy because it is separate from the genus_name column, and it would allow the user to filter for a specific species or genus if needed.
+tree_id: This seems tidy as each observation is given a tree id, which makes each row an observation.
+root_barrier: This is tidy because it is a yes or no column containing a single variable.
+std_street: This entry could be split into three columns to divide the cardinal direction, street name, and the type of street it is, whether its a Avenue, Street, or Road etc.
+neighbourhood_name: This seems tidy because there is consistency between how each neighbourhood is specified as each neighbourhood has its own string.
+curb: This seems tidy enough because there is a Yes or No only for this variable/column.
+cultivar_name: This may not be tidy because the common_name also includes this data. The data in common_name can probably be split to avoid the double presence of the cultivar_name.
 
+Overall, the dataset is tidy, but it is untidy in some cases depending on the research question. Depending on the user's needs, they can make the data more tidy if needed. Each row is an observation as there is a tree id for each entry. Each column is a variable, and each cell has value unless it is specified as NA where there is no record of that variable for that observation.
 <!----------------------------------------------------------------------------->
 
 ### 2.2 (4 points)
@@ -131,6 +219,16 @@ If your data is untidy, then tidy it! Then, untidy it back to it's original stat
 Be sure to explain your reasoning for this task. Show us the "before" and "after".
 
 <!--------------------------- Start your work below --------------------------->
+I want to make the data more tidy by separating the date_planted column into day_planted, month_planted, and year_planted. This will be useful for me because I would like to see how the number of trees planted per year changes, and this was doable but not as straightforward as when the columns for the date are separated out and year is more accessible.
+```{r}
+vancouver_trees_datesep <- vancouver_trees %>% separate(col = date_planted, into = c('year_planted', 'month_planted', 'day_planted'))
+vancouver_trees_datesep
+```
+Now, I can put the componenets of the date back together.
+```{r}
+vancouver_trees_datetog <- vancouver_trees_datesep %>% unite(col = date_planted, c(year_planted, month_planted, day_planted), sep = "-")
+vancouver_trees_datetog
+```
 
 <!----------------------------------------------------------------------------->
 
@@ -140,15 +238,16 @@ Now, you should be more familiar with your data, and also have made progress in 
 
 <!-------------------------- Start your work below ---------------------------->
 
-1.  *FILL_THIS_IN*
-2.  *FILL_THIS_IN*
+1.  How has the number of trees planted changed per year per neighbourhood over the years that this data has been collected?
+2.  How many different genuses of trees are there in each neighbourhood?
 
 <!----------------------------------------------------------------------------->
 
 Explain your decision for choosing the above two research questions.
 
 <!--------------------------- Start your work below --------------------------->
-
+1. For this question, it stems from my curiosity of trends in tree planting and its benefit for climate change. Also, I think it would be interesting to see if there are more trees planted in different neighbourhoods or if each neighbourhood plants the same amount of trees. If one neighbourhood already has a lot of trees, this visual will show that that neighbourhood already has enough trees planted.
+2. I picked this question because I am curious to see how the diversity of trees in each neighbourhood may vary.For my inital question, I graphed how many trees were in each neighbourhood, but determining the diversity is more indicative of diversity of environments.
 <!----------------------------------------------------------------------------->
 
 Now, try to choose a version of your data that you think will be appropriate to answer these 2 questions. Use between 4 and 8 functions that we've covered so far (i.e. by filtering, cleaning, tidy'ing, dropping irrelevant columns, etc.).
@@ -156,6 +255,19 @@ Now, try to choose a version of your data that you think will be appropriate to 
 (If it makes more sense, then you can make/pick two versions of your data, one for each research question.) 
 
 <!--------------------------- Start your work below --------------------------->
+Data Set for Question 1
+
+```{r}
+vancouver_trees_q1 <- vancouver_trees %>% separate(col = date_planted, into = c('year_planted', 'month_planted', 'day_planted')) %>% group_by(neighbourhood_name, year_planted) %>% summarise(n = n())
+vancouver_trees_q1
+```
+
+Data Set for Question 2
+
+```{r}
+vancouver_trees_q2 <- vancouver_trees %>% group_by(neighbourhood_name) %>% summarise(distinct_genus = n_distinct(genus_name))
+vancouver_trees_q2
+```
 
 # Task 3: Modelling
 
@@ -165,9 +277,9 @@ Pick a research question from 1.2, and pick a variable of interest (we'll call i
 
 <!-------------------------- Start your work below ---------------------------->
 
-**Research Question**: FILL_THIS_IN
+**Research Question**: How does diameter of the tree change if there is or is not a root barrier installed?
 
-**Variable of interest**: FILL_THIS_IN
+**Variable of interest**: diameter
 
 <!----------------------------------------------------------------------------->
 
@@ -182,7 +294,10 @@ Fit a model or run a hypothesis test that provides insight on this variable with
     -   You could use `lm()` to test for significance of regression coefficients.
 
 <!-------------------------- Start your work below ---------------------------->
-
+```{r}
+model_diam <- lm(diameter ~ root_barrier, vancouver_trees)
+print(model_diam)
+```
 <!----------------------------------------------------------------------------->
 
 ## 3.2 (3 points)
@@ -194,7 +309,11 @@ Produce something relevant from your fitted model: either predictions on Y, or a
 -   Obtain your results using the `broom` package if possible. If your model is not compatible with the broom function you're needing, then you can obtain your results by some other means, but first indicate which broom function is not compatible.
 
 <!-------------------------- Start your work below ---------------------------->
-
+After using the linear regression model for my two variables, I wanted to know if there was a p-value associated with the model fitting. I'm not exactly sure how this model worked with the inputted data, so I'm not sure why the p-value is 0.
+```{r}
+fitted_diam <- broom::tidy(model_diam)
+print(fitted_diam)
+```
 <!----------------------------------------------------------------------------->
 
 # Task 4: Reading and writing data
