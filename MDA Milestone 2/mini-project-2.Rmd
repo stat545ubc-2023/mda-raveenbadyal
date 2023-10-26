@@ -331,12 +331,9 @@ Take a summary table that you made from Task 1, and write it as a csv file in yo
 <!-------------------------- Start your work below ---------------------------->
 ```{r}
 
-
-
-here::here("Users", "raveenbadyal", "MDA Raveen Badyal", "Output","exported_file.csv")
-here::here()
-write_csv(trees_by_neigh, here("exported_file.csv"))
-
+output_directory <- here("Users", "raveenbadyal","MDA Raveen Badyal", "Output", "mda_task4.3.csv")
+file_name <- write_csv(trees_by_neigh, "mda_task4.3.csv")
+here::here(output_directory, file_name)
 
 ```
 <!----------------------------------------------------------------------------->
