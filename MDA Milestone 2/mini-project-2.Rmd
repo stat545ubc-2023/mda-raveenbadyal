@@ -99,18 +99,21 @@ Make sure it's clear what research question you are doing each operation for!
 Summarizing Task 1: This task helps determine different measure of diameter based on whether or not
 there is a root barrier installed. This will allow me to see if the diameter differs in terms of multiple statistics or just one.
 ```{r}
-vancouver_trees %>% group_by(root_barrier) %>% mutate(mean_diameter = mean(diameter))
-vancouver_trees %>% group_by(root_barrier) %>% summarise(range_diameter = range(diameter))
-vancouver_trees %>% group_by(root_barrier) %>% summarise(med_diameter = median(diameter))
-vancouver_trees %>% group_by(root_barrier) %>% summarise(max_diameter = max(diameter))
-vancouver_trees %>% group_by(root_barrier) %>% summarise(min_diameter = min(diameter))
+mean_diam_barr<- vancouver_trees %>% group_by(root_barrier) %>% summarise(mean_diameter = mean(diameter))
+mean_diam_barr
+range_diam_barr<- vancouver_trees %>% group_by(root_barrier) %>% reframe(range_diameter = range(diameter), .groups = 'drop')
+range_diam_barr
+med_diam_barr<- vancouver_trees %>% group_by(root_barrier) %>% summarise(med_diameter = median(diameter))
+med_diam_barr
+max_diam_barr<- vancouver_trees %>% group_by(root_barrier) %>% summarise(max_diameter = max(diameter))
+max_diam_barr
+min_diam_barr<- vancouver_trees %>% group_by(root_barrier) %>% summarise(min_diameter = min(diameter))
+min_diam_barr
 ```
 
 Graphing Task 2: I created a bar graph to show the difference in mean diameter when comparing whether a tree has a root barrier or not. The bar graph also includes labels on each bar, which denote the diameter.
 ```{r}
-mean_diam_tbl <- vancouver_trees %>% group_by(root_barrier) %>% summarise(mean_diameter = mean(diameter))
-
-ggplot(mean_diam_tbl, aes(root_barrier, mean_diameter)) + geom_col() + geom_text(aes(label = mean_diameter)) + xlab("Presence of Root Barrier") + ylab("Mean Diameter") + ggtitle("Mean Diameter Based on Presence of Root Barrier")
+ggplot(mean_diam_barr, aes(root_barrier, mean_diameter)) + geom_col() + geom_text(aes(label = mean_diameter)) + xlab("Presence of Root Barrier") + ylab("Mean Diameter") + ggtitle("Mean Diameter Based on Presence of Root Barrier")
 ```
 
 
@@ -118,15 +121,13 @@ ggplot(mean_diam_tbl, aes(root_barrier, mean_diameter)) + geom_col() + geom_text
 
 Summarizing Task 2: I chose this task because it would allow me to see how many trees have been planted in each neighborhood.
 ```{r}
-vancouver_trees %>% group_by(neighbourhood_name) %>% summarise(n = n())
+trees_by_neigh <- vancouver_trees %>% group_by(neighbourhood_name) %>% summarise(n = n())
+trees_by_neigh
 ```
 
 Graphing Task 2: I chose this task because it will easily allow me to see how many trees are in each neighbourhood in Vancouver. The text at the bar is helpful to see the true value when two neighborhoods are similar in number.
 ```{r}
-num_trees_neighbourhood <- vancouver_trees %>% group_by(neighbourhood_name) %>% summarise(n = n())
-
-ggplot(num_trees_neighbourhood, aes(neighbourhood_name, n)) + geom_col() + geom_text(aes(label = n)) + xlab("Neighbourhood") + ylab("Number of Trees") + ggtitle("Number of Trees in Vancouver Neighbourhoods") + theme(axis.text.x = element_text(angle = 90)) 
-
+ggplot(trees_by_neigh, aes(neighbourhood_name, n)) + geom_col() + geom_text(aes(label = n)) + xlab("Neighbourhood") + ylab("Number of Trees") + ggtitle("Number of Trees in Vancouver Neighbourhoods") + theme(axis.text.x = element_text(angle = 90)) 
 ```
 
 
@@ -328,7 +329,16 @@ Take a summary table that you made from Task 1, and write it as a csv file in yo
 -   **Reproducibility criteria**: You should be able to delete the csv file, and remake it simply by knitting this Rmd file.
 
 <!-------------------------- Start your work below ---------------------------->
+```{r}
 
+
+
+here::here("Users", "raveenbadyal", "MDA Raveen Badyal", "Output","exported_file.csv")
+here::here()
+write_csv(trees_by_neigh, here("exported_file.csv"))
+
+
+```
 <!----------------------------------------------------------------------------->
 
 ## 4.2 (3 points)
