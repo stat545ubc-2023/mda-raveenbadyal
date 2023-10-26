@@ -331,10 +331,15 @@ Take a summary table that you made from Task 1, and write it as a csv file in yo
 <!-------------------------- Start your work below ---------------------------->
 ```{r}
 
-output_directory <- here("Users", "raveenbadyal","MDA Raveen Badyal", "Output", "mda_task4.3.csv")
-file_name <- write_csv(trees_by_neigh, "mda_task4.3.csv")
-here::here(output_directory, file_name)
+path_output <- here("Users", "raveenbadyal","MDA Raveen Badyal", "Output")
+task4.3_output_file <- write_csv(trees_by_neigh, "mda_task4.3.csv")
+here::here(path_output, "mda_task4.3.csv")
 
+
+path_output <- here("Users", "raveenbadyal","MDA Raveen Badyal", "Output")
+task4.3_output_file <- "mda_task4.3.csv"
+write_csv(trees_by_neigh, task4.3_output_file)
+here::here(path_output, task4.3_output_file)
 ```
 <!----------------------------------------------------------------------------->
 
