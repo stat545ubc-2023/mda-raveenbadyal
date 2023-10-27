@@ -338,7 +338,8 @@ Take a summary table that you made from Task 1, and write it as a csv file in yo
 
 <!-------------------------- Start your work below ---------------------------->
 ```{r}
-write_csv(trees_by_neigh, file = here::here("Output", "mda_task4.3.csv"))
+path_output_1 <- here("Output")
+write_csv(trees_by_neigh, file = here::here(path_output_1, "mda_task4.3.csv"))
 ```
 <!----------------------------------------------------------------------------->
 
@@ -350,9 +351,10 @@ Write your model object from Task 3 to an R binary file (an RDS), and load it ag
 
 <!-------------------------- Start your work below ---------------------------->
 ```{r}
-saveRDS(fitted_diam, file = here::here("Output", "fitted_diam.rds"))
-fitted_diam2 <- readRDS("fitted_diam.rds")
-fitted_diam2
+path_output_1 <- here("Output")
+saveRDS(fitted_diam, file = here::here(path_output_1, "fitted_diam.rds"))
+fitted_diam_2 <- readRDS("/Users/raveenbadyal/MDA Raveen Badyal/Output/fitted_diam.rds")
+fitted_diam_2
 ```
 <!----------------------------------------------------------------------------->
 

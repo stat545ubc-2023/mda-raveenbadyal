@@ -731,7 +731,8 @@ file in your `output` folder. Use the `here::here()` function.
 <!-------------------------- Start your work below ---------------------------->
 
 ``` r
-write_csv(trees_by_neigh, file = here::here("Output", "mda_task4.3.csv"))
+path_output_1 <- here("Output")
+write_csv(trees_by_neigh, file = here::here(path_output_1, "mda_task4.3.csv"))
 ```
 
 <!----------------------------------------------------------------------------->
@@ -747,9 +748,10 @@ Use the functions `saveRDS()` and `readRDS()`.
 <!-------------------------- Start your work below ---------------------------->
 
 ``` r
-saveRDS(fitted_diam, file = here::here("Output", "fitted_diam.rds"))
-fitted_diam2 <- readRDS("fitted_diam.rds")
-fitted_diam2
+path_output_1 <- here("Output")
+saveRDS(fitted_diam, file = here::here(path_output_1, "fitted_diam.rds"))
+fitted_diam_2 <- readRDS("/Users/raveenbadyal/MDA Raveen Badyal/Output/fitted_diam.rds")
+fitted_diam_2
 ```
 
     ## # A tibble: 2 × 5
